@@ -1,1 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>桃園二手機車整合網 - 透明價格、硬核踩雷鑑定</title>
+    <style>
+        :root {
+            --primary: #ff4d4d;
+            --dark: #121212;
+            --card-bg: #1e1e1e;
+            --text: #ffffff;
+            --text-muted: #aaaaaa;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--dark); color: var(--text); padding-bottom: 60px; }
+        
+        /* Header */
+        header { background: linear-gradient(135deg, #1f1f1f, #000); padding: 25px 20px; text-align: center; border-bottom: 3px solid var(--primary); }
+        header h1 { font-size: 24px; font-weight: 800; letter-spacing: 1px; }
+        header p { color: var(--primary); font-size: 13px; margin-top: 5px; font-weight: bold; }
 
+        /* Filter Section */
+        .filter-container { padding: 20px; background: #1a1a1a; margin: 15px; border-radius: 8px; border: 1px solid #333; }
+        .filter-title { font-size: 16px; margin-bottom: 12px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .filter-title::before { content: ''; display: inline-block; width: 4px; height: 16px; background: var(--primary); }
+        .filter-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+        .filter-tag { background: #2a2a2a; padding: 8px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid #444; transition: 0.2s; }
+        .filter-tag.active { background: var(--primary); border-color: var(--primary); font-weight: bold; }
+
+        /* Vehicle List */
+        .vehicle-grid { padding: 0 15px; display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .vehicle-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid #2c2c2c; transition: 0.3s; }
+        .vehicle-card:hover { border-color: var(--primary); }
+        .vehicle-img-container { position: relative; width: 100%; height: 200px; background: #2a2a2a; display: flex; align-items: center; justify-content: center; color: #666; }
+        .vehicle-img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .price-badge { position: absolute; bottom: 10px; right: 10px; background: var(--primary); color: white; padding: 5px 12px; border-radius: 6px; font-weight: bold; font-size: 16px; }
+        
+        .vehicle-info { padding: 15px; }
+        .vehicle-title { font-size: 18px; font-weight: bold; margin-bottom: 8px; }
+        .vehicle-specs { display: flex; gap: 15px; font-size: 12px; color: var(--text-muted); margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 12px; }
+        
+        /* Hardcore Note */
+        .expert-note { background: rgba(255, 77, 77, 0.1); border-left: 4px solid var(--primary); padding: 12px; border-radius: 0 8px 8px 0; margin-bottom: 15px; }
+        .expert-note-title { font-size: 12px; color: var(--primary); font-weight: bold; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
+        .expert-note-p { font-size: 13px; color: #e0e0e0; line-height: 1.4; }
+
+        /* CTA Button */
+        .cta-btn { display: block; width: 100%; background: #06C755; color: white; text-align: center; padding: 12px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 15px; transition: 0.2s; }
+        .cta-btn:hover { background: #05b34c; }
+
+        /* Responsive for desktop */
+        @media (min-width: 768px) {
+            .vehicle-grid { grid-template-columns: repeat(2, 1fr); }
+            .filter-container { max-width: 1200px; margin: 20px auto; }
+            .vehicle-grid { max-width: 1200px; margin: 0 auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 網站標頭 -->
+    <header>
+        <h1>桃園二手機車整合網</h1>
+        <p>📊 全桃園實體車況大整合・小編硬核踩雷鑑定</p>
+    </header>
+
+    <!-- 預算篩選器功能 -->
+    <div class="filter-container">
+        <div class="filter-title">按預算一鍵篩選</div>
+        <div class="filter-tags">
+            <div class="filter-tag active" onclick="filterBudget('all')">全部車輛</div>
+            <div class="filter-tag" onclick="filterBudget('low')">3萬內 (小資代步)</div>
+            <div class="filter-tag" onclick="filterBudget('mid')">3 - 6萬 (主流高CP)</div>
+            <div class="filter-tag" onclick="filterBudget('high')">6 - 9萬 (熱門旗艦)</div>
+        </div>
+    </div>
+
+    <!-- 車輛動態列表 -->
+    <div class="vehicle-grid" id="vehicleGrid">
+        
+        <!-- 車款 1 (主流高CP) -->
+        <div class="vehicle-card" data-budget="mid">
+            <div class="vehicle-img-container">
+                <!-- 預留未來合作車行的實車照片 -->
+                <div style="text-align: center; padding: 20px;">
+                    <span style="font-size: 40px;">🏍️</span>
+                    <p style="font-size: 12px; margin-top: 5px; color: #999;">三陽 SYM JET SL 125 (實車拍攝預留)</p>
+                </div>
+            </div>
+            <div class="vehicle-info">
+                <div class="vehicle-title">三陽 SYM JET SL 125 (水冷版)</div>
+                <div class="vehicle-specs">
+                    <span>年份: 2022年</span>
+                    <span>里程: 12,500 km</span>
+                    <span>地區: 中壢區</span>
+                </div>
+                <div class="expert-note">
+                    <div class="expert-note-title">🔍 52號硬核鑑定報告：</div>
+                    <p class="expert-note-p">這台水冷引擎最大馬力峰值在 11 匹左右，拉高轉動力很扎實。通病是原廠後避震偏軟、騎久了傳動箱偶爾有蟬叫聲。此車傳動耗材已全面翻新，無歪框無大摔，適合想直接下場跑山或精準通勤的人。</p>
+                </div>
+                <div style="position: relative; margin-bottom: 12px;">
+                    <span style="color: var(--primary); font-size: 20px; font-weight: bold;">$ 58,000</span>
+                </div>
+                <!-- 點擊直接導流到你的 LINE 官方帳號，並帶有該車款的預約文字 -->
+                <a href="https://line.me/R/ti/p/@YOUR_LINE_ID?text=我想預約看中壢店的JET-SL" target="_blank" class="cta-btn">🟢 LINE 預約實體店面看車/試騎</a>
+            </div>
+        </div>
+
+        <!-- 車款 2 (小資代步) -->
+        <div class="vehicle-card" data-budget="low">
+            <div class="vehicle-img-container">
+                <div style="text-align: center; padding: 20px;">
+                    <span style="font-size: 40px;">🛵</span>
+                    <p style="font-size: 12px; margin-top: 5px; color: #999;">光陽 KYMCO GP 125 (實車拍攝預留)</p>
+                </div>
+            </div>
+            <div class="vehicle-info">
+                <div class="vehicle-title">光陽 KYMCO GP 125</div>
+                <div class="vehicle-specs">
+                    <span>年份: 2019年</span>
+                    <span>里程: 21,000 km</span>
+                    <span>地區: 桃園區</span>
+                </div>
+                <div class="expert-note">
+                    <div class="expert-note-title">🔍 52號硬核鑑定報告：</div>
+                    <p class="expert-note-p">標準國民代步車，沒什麼高深技術，維修便宜到爆。這台出廠老通病就是吃機油機率高，不過我們合作店面交車前已經全面做過汽門重做與活塞環更新。純代步、跑外送的首選，不建議拿去激烈操駕。</p>
+                </div>
+                <div style="position: relative; margin-bottom: 12px;">
+                    <span style="color: var(--primary); font-size: 20px; font-weight: bold;">$ 28,500</span>
+                </div>
+                <a href="https://line.me/R/ti/p/@YOUR_LINE_ID?text=我想預約看桃園店的GP125" target="_blank" class="cta-btn">🟢 LINE 預約實體店面看車/試騎</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 前端互動邏輯（一鍵篩選預算） -->
+    <script>
+        function filterBudget(category) {
+            // 切換標籤顏色
+            const tags = document.querySelectorAll('.filter-tag');
+            tags.forEach(tag => tag.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 執行篩選隱藏/顯示
+            const cards = document.querySelectorAll('.vehicle-card');
+            cards.forEach(card => {
+                if (category === 'all') {
+                    card.style.display = 'block';
+                } else {
+                    if (card.getAttribute('data-budget') === category) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
