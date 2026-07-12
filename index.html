@@ -260,8 +260,7 @@
         // 填入標題、價格與鑑定報告
         document.getElementById('modalCarName').innerText = car.name;
         document.getElementById('modalCarPrice').innerText = `NT$ ${car.price.toLocaleString()}`;
-        document.getElementById('modalReport').innerText = car.report || "小編正在加緊趕工硬核鑑定報告中，敬請期待！";
-
+        document.getElementById('modalReport').innerText = car.report || "小編正在加緊趕工詳細說明中，敬請期待！";
         // 渲染詳細規格
         const specsGrid = document.getElementById('modalSpecs');
         specsGrid.innerHTML = '';
