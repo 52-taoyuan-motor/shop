@@ -51,8 +51,6 @@
         .close-btn:hover { color: white; }
         
         .modal-gallery { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; padding: 20px; background-color: #151515; }
-        
-        /* 讓照片加入 cursor: pointer 提示可點擊 */
         .modal-gallery img { cursor: pointer; transition: opacity 0.2s; }
         .modal-gallery img:hover { opacity: 0.8; }
         .main-modal-img { width: 100%; height: 350px; object-fit: cover; border-radius: 8px; }
@@ -75,10 +73,12 @@
         .line-btn { background-color: var(--line-green); color: white; text-decoration: none; padding: 15px 25px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 10px; transition: background-color 0.2s; }
         .line-btn:hover { background-color: #05b34c; }
 
-        /* 全螢幕照片檢視器 */
         #lightbox { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); align-items: center; justify-content: center; flex-direction: column; cursor: zoom-out; }
         #lightbox img { max-width: 90%; max-height: 85vh; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .lightbox-hint { color: #aaa; margin-top: 15px; font-size: 0.9rem; letter-spacing: 1px; }
+        
+        /* 載入中動畫 */
+        .loading { text-align: center; padding: 50px; font-size: 1.2rem; color: var(--primary); }
 
         @media (max-width: 768px) {
             .modal-gallery { grid-template-columns: 1fr; }
@@ -90,6 +90,8 @@
             .specs-grid { grid-template-columns: 1fr; }
         }
     </style>
+    <!-- 引入 PapaParse 解析 CSV 工具 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 <body>
 
@@ -109,8 +111,9 @@
             </div>
         </div>
 
+        <!-- 預設顯示載入中 -->
         <div class="car-grid" id="carGrid">
-            <!-- JavaScript 會動態在這裡生成車卡 -->
+            <div class="loading">正在從雲端資料庫載入最新車況...</div>
         </div>
     </div>
 
@@ -118,9 +121,7 @@
     <div id="carModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
-            <div class="modal-gallery" id="modalGallery">
-                <!-- 動態插入相簿 -->
-            </div>
+            <div class="modal-gallery" id="modalGallery"></div>
             <div class="modal-body">
                 <div class="modal-title-area">
                     <h2 id="modalCarName">車輛名稱</h2>
@@ -128,9 +129,7 @@
                 </div>
                 
                 <div class="filter-title">車輛詳細規格</div>
-                <div class="specs-grid" id="modalSpecs">
-                    <!-- 動態插入規格 -->
-                </div>
+                <div class="specs-grid" id="modalSpecs"></div>
 
                 <div class="report-box">
                     <div class="report-title">🔍 52號硬核鑑定報告：</div>
@@ -143,7 +142,6 @@
                         <p>點擊右側按鈕或掃描 QR Code，直接與我們 LINE 官方帳號聯繫詢問車況。</p>
                     </div>
                     <div class="line-media">
-                        <!-- 只留 QR Code 圖片，且按鈕點擊後直接打開此圖片 -->
                         <a href="https://qr-official.line.me/gs/M_240omnsq_GW.png?oat_content=qr" target="_blank" class="line-btn">
                             🟢 點擊顯示 LINE QR Code
                         </a>
@@ -153,53 +151,73 @@
         </div>
     </div>
 
-    <!-- 全螢幕照片檢視器 (Lightbox) -->
     <div id="lightbox" onclick="closeLightbox()">
         <img id="lightbox-img" src="" alt="全螢幕照片">
         <div class="lightbox-hint">點擊任意處關閉</div>
     </div>
 
     <script>
-        // 模擬車輛資料庫
-        const carData = [
-            {
-                id: 1,
-                name: "三陽 SYM JET SL 125 (水冷版)",
-                year: 2022,
-                mileage: "12,500 km",
-                location: "中壢區",
-                price: 78000,
-                category: "high",
-                mainImg: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&auto=format&fit=crop&q=80",
-                subImgs: [
-                    "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&auto=format&fit=crop&q=80",
-                    "https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?w=800&auto=format&fit=crop&q=80"
-                ],
-                specs: { "年份": "2022年", "里程": "12,500 km", "所在地": "中壢區車行託售", "排氣量": "124.6 cc", "引擎型式": "水冷四行程單缸", "煞車系統": "前後碟煞 + BOSCH ABS" },
-                report: "這台水冷引擎最大馬力峰值在 11 匹左右，拉高轉動力很扎實。通病是原廠後避震偏軟、騎久了傳動箱偶爾有蟬叫聲。此車傳動耗材已全面翻新，無歪無重大摔，適合想直接下場跑山或精準通勤的人。"
-            },
-            {
-                id: 2,
-                name: "光陽 KYMCO GP 125",
-                year: 2019,
-                mileage: "21,000 km",
-                location: "桃園區",
-                price: 32000,
-                category: "mid",
-                mainImg: "https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?w=800&auto=format&fit=crop&q=80",
-                subImgs: [
-                    "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&auto=format&fit=crop&q=80",
-                    "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&auto=format&fit=crop&q=80"
-                ],
-                specs: { "年份": "2019年", "里程": "21,000 km", "所在地": "桃園區合作車行", "排氣量": "124.6 cc", "引擎型式": "空冷四行程單缸", "煞車系統": "前碟後鼓" },
-                report: "標準國民代步車，沒什麼高深技術，維修便宜到爆。這台出廠老通病就是吃機油機率高，不過我們合作店面交車前已經全面做過汽門重做與活塞環更新。純代步、跑外送的首選，不建議拿去激烈操駕。"
-            }
-        ];
+        // =========================================================
+        // ⚠️ 五二，請把下面這串網址替換成你 Google 試算表發布的 CSV 網址！
+        // =========================================================
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSWyzyQ_nG4H9IO1Idx7dJlvgpNub-KjGCfcNXWI6UVP92hH0u9njk16RpAYj7M6fDyXGHqm_S0CeMs/pub?output=csv";
+        
+        let globalCarData = [];
+
+        // 初始化：從 Google Sheets 抓資料
+        window.onload = function() {
+            // 這裡我先用 PapaParse 從你的 CSV 網址抓取資料
+            Papa.parse(sheetUrl, {
+                download: true,
+                header: true, // 將第一列當作標題欄位
+                complete: function(results) {
+                    const rawData = results.data;
+                    
+                    // 整理並過濾掉空行或未上架的資料
+                    globalCarData = rawData
+                        .filter(row => row['狀態'] === '上架' && row['標題'])
+                        .map((row, index) => {
+                            return {
+                                id: index + 1,
+                                name: row['標題'],
+                                year: row['年份'],
+                                mileage: row['里程'],
+                                location: row['地區'],
+                                price: parseInt(row['價格']) || 0,
+                                category: row['分類'], // low, mid, high
+                                mainImg: row['主圖網址'],
+                                subImgs: [row['副圖網址1'], row['副圖網址2']].filter(img => img), // 過濾掉沒有填的副圖
+                                specs: { 
+                                    "年份": row['年份'], 
+                                    "里程": row['里程'], 
+                                    "所在地": row['地區'], 
+                                    "排氣量": row['排氣量'], 
+                                    "引擎型式": row['引擎型式'], 
+                                    "煞車系統": row['煞車系統'] 
+                                },
+                                report: row['鑑定報告']
+                            };
+                        });
+                    
+                    // 資料處理好後，顯示全部車輛
+                    filterBudget('all');
+                },
+                error: function(err) {
+                    console.error("資料庫讀取失敗", err);
+                    document.getElementById('carGrid').innerHTML = '<div class="loading" style="color:red;">資料庫連線失敗，請檢查 CSV 網址是否正確。</div>';
+                }
+            });
+        };
 
         function renderCars(data) {
             const grid = document.getElementById('carGrid');
             grid.innerHTML = '';
             
+            if(data.length === 0) {
+                grid.innerHTML = '<div class="loading">目前此區間沒有上架車輛喔！</div>';
+                return;
+            }
+
             data.forEach(car => {
                 const card = document.createElement('div');
                 card.className = 'car-card';
@@ -209,17 +227,17 @@
                     <div class="car-info">
                         <div class="car-name">${car.name}</div>
                         <div class="car-meta">
-                            <span>📅 年份: ${car.year}</span>
-                            <span>⏱️ 里程: ${car.mileage}</span>
-                            <span>📍 地區: ${car.location}</span>
+                            <span>📅 ${car.year}</span>
+                            <span>⏱️ ${car.mileage}</span>
+                            <span>📍 ${car.location}</span>
                         </div>
                         <div class="report-box">
                             <div class="report-title">⚡ 52號硬核鑑定報告：</div>
-                            <p>${car.report.substring(0, 65)}...</p>
+                            <p>${car.report ? car.report.substring(0, 65) + '...' : '詳細鑑定中...'}</p>
                         </div>
                         <div class="price-tag">
                             <span>NT$ ${car.price.toLocaleString()}</span>
-                            <span class="click-hint">點擊看更多照片 & 聯絡 ➔</span>
+                            <span class="click-hint">點擊看詳情 ➔</span>
                         </div>
                     </div>
                 `;
@@ -234,30 +252,29 @@
             }
             
             if (type === 'all') {
-                renderCars(carData);
+                renderCars(globalCarData);
             } else {
-                const filtered = carData.filter(car => car.category === type);
+                const filtered = globalCarData.filter(car => car.category === type);
                 renderCars(filtered);
             }
         }
 
         function openModal(id) {
-            const car = carData.find(c => c.id === id);
+            const car = globalCarData.find(c => c.id === id);
             if(!car) return;
 
             document.getElementById('modalCarName').innerText = car.name;
             document.getElementById('modalCarPrice').innerText = `NT$ ${car.price.toLocaleString()}`;
-            document.getElementById('modalReport').innerText = car.report;
+            document.getElementById('modalReport').innerText = car.report || '無詳細報告';
 
             const specsGrid = document.getElementById('modalSpecs');
             specsGrid.innerHTML = '';
             for (const [key, value] of Object.entries(car.specs)) {
-                specsGrid.innerHTML += `
-                    <div class="spec-item"><span class="spec-label">${key}:</span>${value}</div>
-                `;
+                if(value) {
+                    specsGrid.innerHTML += `<div class="spec-item"><span class="spec-label">${key}:</span>${value}</div>`;
+                }
             }
 
-            // 新增 onclick 事件來打開全螢幕圖片
             const gallery = document.getElementById('modalGallery');
             let subImgsHtml = '';
             car.subImgs.forEach(img => {
@@ -271,25 +288,20 @@
             `;
 
             document.getElementById('carModal').style.display = 'block';
-            // 禁止背景滾動
             document.body.style.overflow = 'hidden'; 
         }
 
         function closeModal() {
             document.getElementById('carModal').style.display = 'none';
-            // 恢復背景滾動
             document.body.style.overflow = 'auto'; 
         }
 
-        // 打開全螢幕照片檢視器
         function openLightbox(imgSrc) {
             const lightbox = document.getElementById('lightbox');
-            const lightboxImg = document.getElementById('lightbox-img');
-            lightboxImg.src = imgSrc;
+            document.getElementById('lightbox-img').src = imgSrc;
             lightbox.style.display = 'flex';
         }
 
-        // 關閉全螢幕照片檢視器
         function closeLightbox() {
             document.getElementById('lightbox').style.display = 'none';
         }
@@ -300,10 +312,6 @@
                 closeModal();
             }
         }
-
-        window.onload = function() {
-            filterBudget('all');
-        };
     </script>
 </body>
 </html>
