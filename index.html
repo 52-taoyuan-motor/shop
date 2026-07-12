@@ -158,44 +158,168 @@
 
     <script>
  const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSWyzyQ_nG4H9IO1Idx7dJlvgpNub-KjGCfcNXWI6UVP92hH0u9njk16RpAYj7M6fDyXGHqm_S0CeMs/pub?output=csv";
-    
-    let globalCarData = [];
 
-    window.onload = function() {
-        Papa.parse(sheetUrl, {
-    download: true,
-    header: true,
-    complete: function(results) {
-        console.log("全原始資料:", results.data);
-        
-        // 關鍵：將過濾條件改為更寬鬆的判斷
-        globalCarData = results.data
-            .filter(row => row['標題'] && row['標題'].trim() !== "") 
-            .map((row, index) => ({
-                id: index + 1,
-                name: row['標題'],
-                year: row['年份'],
-                mileage: row['里程'],
-                location: row['地區'],
-                price: parseInt(row['價格']) || 0,
-                category: row['分類'] ? row['分類'].trim() : 'mid',
-                mainImg: row['主圖網址'],
-                subImgs: [row['副圖網址1'], row['副圖網址2']].filter(i => i && i.trim() !== ""),
-                specs: { 
-                    "年份": row['年份'], 
-                    "里程": row['里程'], 
-                    "所在地": row['地區'], 
-                    "排氣量": row['排氣量'], 
-                    "引擎型式": row['引擎型式'], 
-                    "煞車系統": row['煞車系統'] 
-                },
-                report: row['鑑定報告']
-            }));
-        
-        console.log("最終處理資料:", globalCarData);
-        filterBudget('all');
+let globalCarData = [];
+
+window.onload = function() {
+    Papa.parse(sheetUrl, {
+        download: true,
+        header: true,
+        complete: function(results) {
+            console.log("全原始資料:", results.data);
+            
+            globalCarData = results.data
+                .filter(row => row['標題'] && row['標題'].trim() !== "") 
+                .map((row, index) => ({
+                    id: index + 1,
+                    name: row['標題'],
+                    year: row['年份'],
+                    mileage: row['里程'],
+                    location: row['地區'],
+                    price: parseInt(row['價格']) || 0,
+                    category: row['分類'] ? row['分類'].trim() : 'mid',
+                    mainImg: row['主圖網址'],
+                    subImgs: [row['副圖網址1'], row['副圖網址2']].filter(i => i && i.trim() !== ""),
+                    specs: { 
+                        "年份": row['年份'], 
+                        "里程": row['里程'], 
+                        "所在地": row['地區'], 
+                        "排氣量": row['排氣量'], 
+                        "引擎型式": row['引擎型式'], 
+                        "煞車系統": row['煞車系統'] 
+                    },
+                    report: row['鑑定報告']
+                }));
+            
+            console.log("最終處理資料:", globalCarData);
+            
+            // 預設載入全部車輛
+            filterBudget('all', document.querySelector('.filter-btn.active'));
+        },
+        error: function(err) {
+            console.error("CSV 讀取失敗:", err);
+            document.getElementById('carGrid').innerHTML = '<p style="text-align:center; color:#ff4d4d; margin-top:50px;">雲端資料庫連線失敗，請重新整理網頁。</p>';
+        }
+    });
+};
+
+// 篩選功能
+function filterBudget(type, btnElement) {
+    // 【關鍵修正】將 ID 改為對應 HTML 的 carGrid
+    const container = document.getElementById('carGrid');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    // 切換按鈕的 active 紅色高亮樣式
+    if (btnElement) {
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        btnElement.classList.add('active');
     }
-});
+    
+    // 依據分類篩選資料
+    const filtered = (type === 'all') ? globalCarData : globalCarData.filter(c => c.category === type);
+    
+    if (filtered.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#aaaaaa; margin-top:50px; grid-column: 1/-1;">目前此預算區間沒有上架車輛喔！</p>';
+        return;
+    }
+
+    // 渲染車輛卡片
+    filtered.forEach(car => {
+        const card = document.createElement('div');
+        card.className = 'car-card';
+        // 套用你原本寫好的 CSS 結構 (car-img, car-info, car-name, price-tag 等)
+        card.innerHTML = `
+            <img class="car-img" src="${car.mainImg}" alt="${car.name}" onerror="this.src='https://via.placeholder.com/400x250?text=無車輛照片'">
+            <div class="car-info">
+                <div class="car-name">${car.name}</div>
+                <div class="car-meta">
+                    <span>📅 ${car.year || '年份不詳'}</span> | 
+                    <span>🛣️ ${car.mileage || '0'} km</span> | 
+                    <span>📍 ${car.location || '桃園'}</span>
+                </div>
+                <div class="price-tag">
+                    NT$ ${car.price.toLocaleString()}
+                    <span class="click-hint">點擊看詳情 →</span>
+                </div>
+            </div>
+        `;
+        // 綁定點擊整張卡片開啟詳細視窗
+        card.onclick = function() {
+            openModal(car.id);
+        };
+        container.appendChild(card);
+    });
+}
+
+// 彈出視窗內容填入與開啟
+function openModal(id) {
+    const car = globalCarData.find(c => c.id === id);
+    if (!car) return;
+
+    // 填入標題、價格與鑑定報告
+    document.getElementById('modalCarName').innerText = car.name;
+    document.getElementById('modalCarPrice').innerText = `NT$ ${car.price.toLocaleString()}`;
+    document.getElementById('modalReport').innerText = car.report || "小編正在加緊趕工硬核鑑定報告中，敬請期待！";
+
+    // 渲染詳細規格
+    const specsGrid = document.getElementById('modalSpecs');
+    specsGrid.innerHTML = '';
+    for (const [key, value] of Object.entries(car.specs)) {
+        const item = document.createElement('div');
+        item.className = 'spec-item';
+        item.innerHTML = `<span class="spec-label">${key}：</span>${value || '未提供'}`;
+        specsGrid.appendChild(item);
+    }
+
+    // 渲染相簿區 (主圖 + 副圖)
+    const gallery = document.getElementById('modalGallery');
+    gallery.innerHTML = '';
+    
+    // 主圖 HTML
+    const mainImgHtml = `<img class="main-modal-img" src="${car.mainImg}" onclick="openLightbox('${car.mainImg}')" onerror="this.src='https://via.placeholder.com/600x350?text=暫無照片'">`;
+    
+    // 副圖 HTML (有的話才渲染)
+    let subImgsHtml = '';
+    if (car.subImgs && car.subImgs.length > 0) {
+        subImgsHtml = '<div class="sub-modal-imgs">';
+        car.subImgs.forEach(img => {
+            subImgsHtml += `<img src="${img}" onclick="openLightbox('${img}')" onerror="this.style.display='none'">`;
+        });
+        subImgsHtml += '</div>';
+    }
+    
+    gallery.innerHTML = mainImgHtml + subImgsHtml;
+
+    // 秀出視窗
+    document.getElementById('carModal').style.display = 'block';
+}
+
+// 關閉視窗
+function closeModal() {
+    document.getElementById('carModal').style.display = 'none';
+}
+
+// 全螢幕點擊看大圖 (Lightbox)
+function openLightbox(src) {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    lightboxImg.src = src;
+    lightbox.style.display = 'flex';
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+}
+
+// 貼心功能：點擊 Modal 視窗外面黑影處也能直接關閉
+window.onclick = function(event) {
+    const modal = document.getElementById('carModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+}
     };
 
     // 篩選功能
