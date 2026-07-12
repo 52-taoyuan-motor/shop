@@ -3,42 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>桃園二手機車整合網</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <title>桃園二手機車整合網 - 透明價格、品質與保固</title>
     <style>
-        :root { --primary: #ff4d4d; --dark: #121212; --card-bg: #1e1e1e; --text: #ffffff; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        :root { --primary: #ff4d4d; --primary-hover: #ff3333; --dark: #121212; --card-bg: #1e1e1e; --text: #ffffff; --text-muted: #aaaaaa; --line-green: #06C755; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: var(--dark); color: var(--text); padding-bottom: 60px; }
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-        .btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        .filter-btn { background: #333; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
-        .filter-btn.active { background: var(--primary); }
-        .car-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .car-card { background: var(--card-bg); padding: 15px; border-radius: 10px; text-align: center; }
-        .car-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 5px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); padding: 20px; overflow-y: auto; }
-        .modal-content { background: #222; max-width: 600px; margin: 50px auto; padding: 20px; border-radius: 10px; }
+        header { text-align: center; padding: 40px 20px; border-bottom: 2px solid var(--primary); background: linear-gradient(180deg, #1f1f1f 0%, #121212 100%); }
+        header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px; }
+        header p { color: var(--primary); font-weight: bold; font-size: 1.1rem; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .filter-section { background-color: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #333; }
+        .filter-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; border-left: 4px solid var(--primary); padding-left: 10px; }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 10px; }
+        .filter-btn { background-color: #2a2a2a; color: var(--text); border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .filter-btn:hover { background-color: #3a3a3a; }
+        .filter-btn.active { background-color: var(--primary); color: white; }
+        .car-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; }
+        .car-card { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid #2a2a2a; cursor: pointer; transition: transform 0.3s, border-color 0.3s; padding: 20px; }
+        .car-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .car-card img { width: 100%; height: 220px; object-fit: cover; background-color: #2a2a2a; border-radius: 8px; margin-bottom: 15px; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); overflow-y: auto; padding: 20px 10px; }
+        .modal-content { background-color: var(--card-bg); margin: 30px auto; max-width: 800px; width: 100%; border-radius: 16px; border: 1px solid #333; overflow: hidden; position: relative; }
+        .close-btn { position: absolute; right: 20px; top: 15px; font-size: 2rem; color: var(--text-muted); cursor: pointer; z-index: 10; }
+        .modal-gallery { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; padding: 20px; background-color: #151515; }
+        .main-modal-img { width: 100%; height: 350px; object-fit: cover; border-radius: 8px; }
+        .sub-modal-imgs { display: flex; flex-direction: column; gap: 10px; }
+        .sub-modal-imgs img { width: 100%; height: 170px; object-fit: cover; border-radius: 8px; }
+        .modal-body { padding: 30px; }
+        .specs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; background: #1a1a1a; padding: 15px; border-radius: 8px; }
+        .line-contact-section { background: linear-gradient(135deg, #1f2a22 0%, #151f18 100%); border: 1px solid #2e4a35; padding: 25px; border-radius: 12px; margin-top: 30px; }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 <body>
-    <div class="container">
+    <header>
         <h1>桃園二手機車整合網</h1>
-        <div class="btn-group">
-            <button class="filter-btn active" onclick="filterBudget('all', this)">全部</button>
-            <button class="filter-btn" onclick="filterBudget('low', this)">3萬內</button>
-            <button class="filter-btn" onclick="filterBudget('mid', this)">3-6萬</button>
-            <button class="filter-btn" onclick="filterBudget('high', this)">6-9萬</button>
+        <p>📊 全桃園實體車況大整合・小編硬核踩雷鑑定</p>
+    </header>
+    <div class="container">
+        <div class="filter-section">
+            <div class="filter-title">按預算一鍵篩選</div>
+            <div class="btn-group" id="filterGroup">
+                <button class="filter-btn active" onclick="filterData('all', this)">全部車輛</button>
+                <button class="filter-btn" onclick="filterData('low', this)">3萬內 (小資代步)</button>
+                <button class="filter-btn" onclick="filterData('mid', this)">3 - 6萬 (主流高CP)</button>
+                <button class="filter-btn" onclick="filterData('high', this)">6 - 9萬 (熱門旗艦)</button>
+            </div>
         </div>
-        <div class="car-grid" id="carGrid">載入中...</div>
+        <div class="car-grid" id="carGrid"><div class="loading">正在載入資料...</div></div>
     </div>
 
-    <div id="carModal" class="modal" onclick="this.style.display='none'">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 id="modalTitle"></h2>
-            <img id="modalImg" src="" style="width:100%">
-            <p id="modalPrice"></p>
-            <p id="modalReport"></p>
-            <button onclick="document.getElementById('carModal').style.display='none'">關閉</button>
+    <div id="carModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="document.getElementById('carModal').style.display='none'">&times;</span>
+            <div class="modal-gallery" id="modalGallery"></div>
+            <div class="modal-body">
+                <h2 id="modalCarName"></h2>
+                <div style="font-size: 2rem; font-weight: 800; color: #ff4d4d; margin: 10px 0;" id="modalCarPrice"></div>
+                <div class="filter-title">車輛詳細規格</div>
+                <div class="specs-grid" id="modalSpecs"></div>
+                <div class="filter-title">🔍 52號硬核鑑定報告：</div>
+                <p id="modalReport" style="margin-bottom: 20px; line-height: 1.6;"></p>
+                <div class="line-contact-section">
+                    <h3>💬 對這台車有興趣？</h3>
+                    <p>掃描或點擊 LINE 聯繫詢問。</p>
+                    <a href="https://qr-official.line.me/gs/M_240omnsq_GW.png?oat_content=qr" target="_blank" style="background:#06C755; color:white; padding:15px; display:block; text-align:center; border-radius:8px; margin-top:10px; text-decoration:none;">🟢 點擊顯示 LINE QR Code</a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -49,46 +80,43 @@
         Papa.parse(sheetUrl, {
             download: true, header: true,
             complete: function(results) {
-                globalCarData = results.data
-                    .filter(row => row['標題']?.trim())
-                    .map((row, index) => ({
-                        id: index,
-                        name: row['標題'],
-                        price: parseInt(row['價格']) || 0,
-                        category: row['分類']?.trim() || 'mid',
-                        mainImg: row['主圖網址'],
-                        report: row['鑑定報告'] || '無鑑定資料'
-                    }));
-                filterBudget('all');
+                globalCarData = results.data.filter(r => r['標題']?.trim()).map((row, i) => ({
+                    id: i,
+                    name: row['標題'],
+                    price: row['價格'],
+                    category: row['分類']?.trim() || 'mid',
+                    mainImg: row['主圖網址'],
+                    subImgs: [row['副圖網址1'], row['副圖網址2']].filter(Boolean),
+                    specs: { "年份": row['年份'], "里程": row['里程'], "排氣量": row['排氣量'], "煞車系統": row['煞車系統'] },
+                    report: row['鑑定報告']
+                }));
+                filterData('all');
             }
         });
 
-        function filterBudget(type, btn) {
+        function filterData(type, btn) {
             if(btn) {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             }
             const grid = document.getElementById('carGrid');
             grid.innerHTML = '';
-            const list = (type === 'all') ? globalCarData : globalCarData.filter(c => c.category === type);
-            
-            list.forEach(car => {
-                grid.innerHTML += `
-                    <div class="car-card">
-                        <img src="${car.mainImg}">
-                        <h3>${car.name}</h3>
-                        <p>${car.price.toLocaleString()} 元</p>
-                        <button onclick="openModal(${car.id})">詳情</button>
-                    </div>`;
+            const filtered = (type === 'all') ? globalCarData : globalCarData.filter(c => c.category === type);
+            filtered.forEach(car => {
+                grid.innerHTML += `<div class="car-card" onclick="openModal(${car.id})">
+                    <img src="${car.mainImg}"><h3>${car.name}</h3><p>價格：${car.price} 元</p>
+                </div>`;
             });
         }
 
         function openModal(id) {
             const car = globalCarData.find(c => c.id === id);
-            document.getElementById('modalTitle').innerText = car.name;
-            document.getElementById('modalImg').src = car.mainImg;
-            document.getElementById('modalPrice').innerText = "價格：" + car.price + " 元";
-            document.getElementById('modalReport').innerText = "鑑定：" + car.report;
+            document.getElementById('modalCarName').innerText = car.name;
+            document.getElementById('modalCarPrice').innerText = "NT$ " + car.price;
+            document.getElementById('modalReport').innerText = car.report;
+            document.getElementById('modalGallery').innerHTML = `<img src="${car.mainImg}" class="main-modal-img">` + 
+                `<div class="sub-modal-imgs">${car.subImgs.map(img => `<img src="${img}">`).join('')}</div>`;
+            document.getElementById('modalSpecs').innerHTML = Object.entries(car.specs).map(([k, v]) => `<div><span style="color:#aaa">${k}：</span>${v}</div>`).join('');
             document.getElementById('carModal').style.display = 'block';
         }
     </script>
