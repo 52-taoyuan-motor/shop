@@ -163,40 +163,39 @@
 
     window.onload = function() {
         Papa.parse(sheetUrl, {
-            download: true,
-            header: true, // 使用標題列模式
-            complete: function(results) {
-                // 篩選出狀態為「上架」的車輛
-                globalCarData = results.data
-                    .filter(row => row['狀態'] === '上架' && row['標題'])
-                    .map((row, index) => ({
-                        id: index + 1,
-                        name: row['標題'],
-                        year: row['年份'],
-                        mileage: row['里程'],
-                        location: row['地區'],
-                        price: parseInt(row['價格']) || 0,
-                        category: row['分類'],
-                        mainImg: row['主圖網址'],
-                        subImgs: [row['副圖網址1'], row['副圖網址2']].filter(i => i),
-                        specs: { 
-                            "年份": row['年份'], 
-                            "里程": row['里程'], 
-                            "所在地": row['地區'], 
-                            "排氣量": row['排氣量'], 
-                            "引擎型式": row['引擎型式'], 
-                            "煞車系統": row['煞車系統'] 
-                        },
-                        report: row['鑑定報告']
-                    }));
-                
-                console.log("成功載入車輛資料:", globalCarData);
-                filterBudget('all');
-            },
-            error: function(err) {
-                console.error("讀取資料失敗，請確認 CSV 網址是否正確:", err);
-            }
-        });
+    download: true,
+    header: true,
+    complete: function(results) {
+        console.log("全原始資料:", results.data);
+        
+        // 關鍵：將過濾條件改為更寬鬆的判斷
+        globalCarData = results.data
+            .filter(row => row['標題'] && row['標題'].trim() !== "") 
+            .map((row, index) => ({
+                id: index + 1,
+                name: row['標題'],
+                year: row['年份'],
+                mileage: row['里程'],
+                location: row['地區'],
+                price: parseInt(row['價格']) || 0,
+                category: row['分類'] ? row['分類'].trim() : 'mid',
+                mainImg: row['主圖網址'],
+                subImgs: [row['副圖網址1'], row['副圖網址2']].filter(i => i && i.trim() !== ""),
+                specs: { 
+                    "年份": row['年份'], 
+                    "里程": row['里程'], 
+                    "所在地": row['地區'], 
+                    "排氣量": row['排氣量'], 
+                    "引擎型式": row['引擎型式'], 
+                    "煞車系統": row['煞車系統'] 
+                },
+                report: row['鑑定報告']
+            }));
+        
+        console.log("最終處理資料:", globalCarData);
+        filterBudget('all');
+    }
+});
     };
 
     // 篩選功能
