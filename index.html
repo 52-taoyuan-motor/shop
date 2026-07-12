@@ -22,7 +22,6 @@
         
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         
-        /* 篩選按鈕區區塊 */
         .filter-section { background-color: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #333; }
         .filter-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; border-left: 4px solid var(--primary); padding-left: 10px; }
         .btn-group { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -30,7 +29,6 @@
         .filter-btn:hover { background-color: #3a3a3a; }
         .filter-btn.active { background-color: var(--primary); color: white; }
         
-        /* 車輛網格 */
         .car-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; }
         .car-card { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid #2a2a2a; cursor: pointer; transition: transform 0.3s, border-color 0.3s; }
         .car-card:hover { transform: translateY(-5px); border-color: var(--primary); }
@@ -39,14 +37,13 @@
         .car-name { font-size: 1.4rem; font-weight: bold; margin-bottom: 10px; }
         .car-meta { display: flex; gap: 15px; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; }
         
-        /* 52號鑑定報告標籤 */
         .report-box { background-color: rgba(255, 77, 77, 0.1); border-left: 3px solid var(--primary); padding: 12px; border-radius: 0 8px 8px 0; font-size: 0.95rem; line-height: 1.5; margin-bottom: 15px; }
         .report-title { color: var(--primary); font-weight: bold; margin-bottom: 5px; display: flex; align-items: center; gap: 5px; }
         
         .price-tag { font-size: 1.6rem; font-weight: 800; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
         .click-hint { font-size: 0.85rem; color: var(--text-muted); font-weight: normal; }
 
-        /* 需求 2：彈出詳細視窗 (Modal) */
+        /* 彈出詳細視窗 (Modal) */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); overflow-y: auto; padding: 20px 10px; backdrop-filter: blur(5px); }
         .modal-content { background-color: var(--card-bg); margin: 30px auto; max-width: 800px; width: 100%; border-radius: 16px; border: 1px solid #333; overflow: hidden; position: relative; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -54,6 +51,10 @@
         .close-btn:hover { color: white; }
         
         .modal-gallery { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; padding: 20px; background-color: #151515; }
+        
+        /* 讓照片加入 cursor: pointer 提示可點擊 */
+        .modal-gallery img { cursor: pointer; transition: opacity 0.2s; }
+        .modal-gallery img:hover { opacity: 0.8; }
         .main-modal-img { width: 100%; height: 350px; object-fit: cover; border-radius: 8px; }
         .sub-modal-imgs { display: flex; flex-direction: column; gap: 10px; }
         .sub-modal-imgs img { width: 100%; height: 170px; object-fit: cover; border-radius: 8px; }
@@ -66,7 +67,6 @@
         .spec-item { font-size: 0.95rem; }
         .spec-label { color: var(--text-muted); margin-right: 8px; }
         
-        /* LINE 聯絡區塊 */
         .line-contact-section { background: linear-gradient(135deg, #1f2a22 0%, #151f18 100%); border: 1px solid #2e4a35; padding: 25px; border-radius: 12px; margin-top: 30px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
         .line-info h3 { color: var(--line-green); margin-bottom: 8px; font-size: 1.3rem; }
         .line-info p { color: #ccc; font-size: 0.95rem; line-height: 1.4; }
@@ -74,6 +74,11 @@
         .line-qr { width: 90px; height: 90px; border-radius: 8px; border: 2px solid white; background-color: white; }
         .line-btn { background-color: var(--line-green); color: white; text-decoration: none; padding: 15px 25px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 10px; transition: background-color 0.2s; }
         .line-btn:hover { background-color: #05b34c; }
+
+        /* 全螢幕照片檢視器 */
+        #lightbox { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); align-items: center; justify-content: center; flex-direction: column; cursor: zoom-out; }
+        #lightbox img { max-width: 90%; max-height: 85vh; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .lightbox-hint { color: #aaa; margin-top: 15px; font-size: 0.9rem; letter-spacing: 1px; }
 
         @media (max-width: 768px) {
             .modal-gallery { grid-template-columns: 1fr; }
@@ -94,7 +99,6 @@
     </header>
 
     <div class="container">
-        <!-- 預算篩選功能 -->
         <div class="filter-section">
             <div class="filter-title">按預算一鍵篩選</div>
             <div class="btn-group">
@@ -105,13 +109,12 @@
             </div>
         </div>
 
-        <!-- 車輛列表網格 -->
         <div class="car-grid" id="carGrid">
             <!-- JavaScript 會動態在這裡生成車卡 -->
         </div>
     </div>
 
-    <!-- 需求 2：詳情彈出視窗 -->
+    <!-- 詳情彈出視窗 -->
     <div id="carModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
@@ -134,16 +137,15 @@
                     <p id="modalReport">鑑定內容載入中...</p>
                 </div>
 
-                <!-- 需求 3 & 4：LINE 聯絡諮詢與賣家詢問區區塊 -->
                 <div class="line-contact-section">
                     <div class="line-info">
                         <h3>💬 對這台車有興趣？</h3>
-                        <p>點擊右側按鈕直接私訊小編詢問車況、預約看車，或拿起手機直接掃描 QR Code 加入我們的官方 LINE！</p>
+                        <p>點擊右側按鈕或掃描 QR Code，直接與我們 LINE 官方帳號聯繫詢問車況。</p>
                     </div>
                     <div class="line-media">
-                        <img class="line-qr" src="https://qr-official.line.me/gs/M_240omnsq_GW.png?oat_content=qr" alt="LINE QR Code">
-                        <a href="https://page.line.me/240omnsqgw" target="_blank" class="line-btn">
-                            🟢 LINE 線上詢問賣家
+                        <!-- 只留 QR Code 圖片，且按鈕點擊後直接打開此圖片 -->
+                        <a href="https://qr-official.line.me/gs/M_240omnsq_GW.png?oat_content=qr" target="_blank" class="line-btn">
+                            🟢 點擊顯示 LINE QR Code
                         </a>
                     </div>
                 </div>
@@ -151,8 +153,14 @@
         </div>
     </div>
 
+    <!-- 全螢幕照片檢視器 (Lightbox) -->
+    <div id="lightbox" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="全螢幕照片">
+        <div class="lightbox-hint">點擊任意處關閉</div>
+    </div>
+
     <script>
-        // 車輛資料庫
+        // 模擬車輛資料庫
         const carData = [
             {
                 id: 1,
@@ -162,10 +170,10 @@
                 location: "中壢區",
                 price: 78000,
                 category: "high",
-                mainImg: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=600&auto=format&fit=crop&q=80",
+                mainImg: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&auto=format&fit=crop&q=80",
                 subImgs: [
-                    "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=400&auto=format&fit=crop&q=80",
-                    "https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?w=400&auto=format&fit=crop&q=80"
+                    "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&auto=format&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?w=800&auto=format&fit=crop&q=80"
                 ],
                 specs: { "年份": "2022年", "里程": "12,500 km", "所在地": "中壢區車行託售", "排氣量": "124.6 cc", "引擎型式": "水冷四行程單缸", "煞車系統": "前後碟煞 + BOSCH ABS" },
                 report: "這台水冷引擎最大馬力峰值在 11 匹左右，拉高轉動力很扎實。通病是原廠後避震偏軟、騎久了傳動箱偶爾有蟬叫聲。此車傳動耗材已全面翻新，無歪無重大摔，適合想直接下場跑山或精準通勤的人。"
@@ -178,17 +186,16 @@
                 location: "桃園區",
                 price: 32000,
                 category: "mid",
-                mainImg: "https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?w=600&auto=format&fit=crop&q=80",
+                mainImg: "https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?w=800&auto=format&fit=crop&q=80",
                 subImgs: [
-                    "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=400&auto=format&fit=crop&q=80",
-                    "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=400&auto=format&fit=crop&q=80"
+                    "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&auto=format&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&auto=format&fit=crop&q=80"
                 ],
                 specs: { "年份": "2019年", "里程": "21,000 km", "所在地": "桃園區合作車行", "排氣量": "124.6 cc", "引擎型式": "空冷四行程單缸", "煞車系統": "前碟後鼓" },
                 report: "標準國民代步車，沒什麼高深技術，維修便宜到爆。這台出廠老通病就是吃機油機率高，不過我們合作店面交車前已經全面做過汽門重做與活塞環更新。純代步、跑外送的首選，不建議拿去激烈操駕。"
             }
         ];
 
-        // 渲染車輛列表
         function renderCars(data) {
             const grid = document.getElementById('carGrid');
             grid.innerHTML = '';
@@ -220,9 +227,7 @@
             });
         }
 
-        // 預算篩選邏輯
         function filterBudget(type, btnElement) {
-            // 切換按鈕樣式
             if(btnElement) {
                 document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
                 btnElement.classList.add('active');
@@ -236,7 +241,6 @@
             }
         }
 
-        // 開啟詳細彈出視窗
         function openModal(id) {
             const car = carData.find(c => c.id === id);
             if(!car) return;
@@ -245,7 +249,6 @@
             document.getElementById('modalCarPrice').innerText = `NT$ ${car.price.toLocaleString()}`;
             document.getElementById('modalReport').innerText = car.report;
 
-            // 渲染規格
             const specsGrid = document.getElementById('modalSpecs');
             specsGrid.innerHTML = '';
             for (const [key, value] of Object.entries(car.specs)) {
@@ -254,36 +257,50 @@
                 `;
             }
 
-            // 渲染相簿 (主圖 + 兩張副圖)
+            // 新增 onclick 事件來打開全螢幕圖片
             const gallery = document.getElementById('modalGallery');
             let subImgsHtml = '';
             car.subImgs.forEach(img => {
-                subImgsHtml += `<img src="${img}" alt="車況細節圖">`;
+                subImgsHtml += `<img src="${img}" alt="車況細節圖" onclick="openLightbox(this.src)">`;
             });
             gallery.innerHTML = `
-                <img class="main-modal-img" src="${car.mainImg}" alt="${car.name}">
+                <img class="main-modal-img" src="${car.mainImg}" alt="${car.name}" onclick="openLightbox(this.src)">
                 <div class="sub-modal-imgs">
                     ${subImgsHtml}
                 </div>
             `;
 
             document.getElementById('carModal').style.display = 'block';
+            // 禁止背景滾動
+            document.body.style.overflow = 'hidden'; 
         }
 
-        // 關閉視窗
         function closeModal() {
             document.getElementById('carModal').style.display = 'none';
+            // 恢復背景滾動
+            document.body.style.overflow = 'auto'; 
         }
 
-        // 點擊視窗外部關閉
+        // 打開全螢幕照片檢視器
+        function openLightbox(imgSrc) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            lightboxImg.src = imgSrc;
+            lightbox.style.display = 'flex';
+        }
+
+        // 關閉全螢幕照片檢視器
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+
         window.onclick = function(event) {
             const modal = document.getElementById('carModal');
             if (event.target == modal) {
-                modal.style.display = 'none';
+                closeModal();
             }
         }
 
-        // 網頁開啟時，自動初始化顯示全部車輛
         window.onload = function() {
             filterBudget('all');
         };
